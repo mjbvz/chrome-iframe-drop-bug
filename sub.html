@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang='en' style="height: 100%">
+
+<head>
+    <meta charset='UTF-8'>
+</head>
+
+<body style='background-color: green; height: 100%'>
+    <h1>Inner</h1>
+    <script>
+        window.addEventListener('dragenter', (e) => {
+            console.log('Inner —  Drag enter');
+            window.parent.postMessage({ type: 'dragenter' }, '*'); // Tell parent to create drag overlay that will intercept events
+            e.preventDefault();
+        });
+
+        window.addEventListener('dragover', (e) => {
+            console.log('Inner — Drag over');
+            e.preventDefault();
+            window.parent.postMessage({ type: 'dragenter' }, '*');
+        });
+
+        window.addEventListener('drop', (e) => {
+            console.log('Inner — Drop');
+            e.preventDefault();
+        });
+    </script>
+</body>
+
+</html>

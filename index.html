@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <style>
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background-color: blue;
+        }
+
+        #frame-container {
+            height: 100%;
+            width: 50%;
+            position: absolute;
+            left: 50%;
+            top: 0;
+        }
+
+        #frame {
+            height: 100%;
+            width: 100%;
+        }
+
+        #dnd-interceptor {
+            background-color: #f00;
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            visibility: hidden;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Outer</h1>
+
+    <!-- Wrapper for the iframe -->
+    <div id="frame-container">
+        <!-- The iframe we try dropping into (shown into green) -->
+        <iframe id="frame" sandbox="allow-scripts allow-same-origin" src="http://127.0.0.1:8080/sub"></iframe>
+
+        <!-- Element which we programatically show over the iframe to intercept drag and drop events (shown in red) -->
+        <div id="dnd-interceptor"></div>
+    </div>
+
+    <script>
+        const container = document.getElementById('frame-container');
+        const frame = document.getElementById('frame');
+        const interceptor = document.getElementById('dnd-interceptor');
+
+        function showDndIntercept() {
+            interceptor.style.visibility = 'visible';
+        }
+
+        function hideDndIntercept() {
+            interceptor.style.visibility = 'hidden';
+        }
+
+        // Add global dnd listeners 
+        window.addEventListener('dragenter', (e) => {
+            console.log('Outer — Drag enter');
+            e.preventDefault();
+        });
+
+        window.addEventListener('dragover', (e) => {
+            console.log('Outer — Drag over');
+            e.preventDefault();
+        });
+
+        window.addEventListener('drop', (e) => {
+            console.log('Outer — Drop');
+            e.preventDefault();
+        });
+
+        // Let the iframe signal that we should show the dnd interceptor when dragging starts
+        window.addEventListener('message', e => {
+            switch (e.data.type) {
+                case 'dragenter': {
+                    showDndIntercept();
+                    break;
+                }
+            }
+        });
+
+        // Add dnd listeners on the container (effectivly on the interceptor element )
+        container.addEventListener('dragleave', (e) => {
+            console.log('Outer container — Drag leave');
+            hideDndIntercept();
+            e.preventDefault();
+        });
+
+        container.addEventListener('drop', (e) => {
+            console.log('Outer container — Drop');
+            hideDndIntercept();
+            e.preventDefault();
+        });
+    </script>
+</body>
+
+</html>
